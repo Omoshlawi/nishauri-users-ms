@@ -1,7 +1,7 @@
 import slugify from "slugify";
 import multer from "multer";
 import path from "path";
-import { MEDIA_ROOT } from "../utils";
+import { MEDIA_ROOT, configuration } from "../utils";
 
 // const uploads = multer({ dest: "../media/uploads" });
 
@@ -11,7 +11,11 @@ const fileUploader = ({ dest }: { dest: string }) => {
     filename: function (req, file, cb) {
       cb(
         null,
-        Date.now() +
+        slugify(configuration.name) +
+          "-" +
+          slugify(configuration.version) +
+          "-" +
+          Date.now() +
           "-" +
           slugify(file.originalname, { lower: true, trim: true })
       ); // filename

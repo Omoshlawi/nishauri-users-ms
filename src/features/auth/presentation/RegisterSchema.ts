@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const RegisterSchema = z
   .object({
-    username: z.string(),
+    username: z.string().min(4),
     email: z.string().email(),
     phoneNumber: z.string().min(10).max(12),
     password: z.string(),

@@ -4,7 +4,7 @@ import fs from "fs";
 import moment from "moment/moment";
 import config from "config";
 import axios from "axios";
-
+import path from "path/posix";
 export const formartError = (errors: any) => {
   return {
     status: 0,
@@ -49,7 +49,7 @@ export const getUpdateFileAsync = async (
   currImage: string | undefined
 ) => {
   if (req.file) {
-    const originalImage = `/${dst}/${req.file.originalname}`;
+    const originalImage = path.join(dst, req.file.originalname);
     // if file is not updated then return original else return new
     if (originalImage === currImage) {
       // Delete new upload and return the old
@@ -57,7 +57,7 @@ export const getUpdateFileAsync = async (
       return originalImage;
     }
     // In future you can delete old
-    return `/${dst}/${req.file.filename}`;
+    return path.join(dst, req.file.filename);
   }
 };
 
@@ -107,7 +107,6 @@ export const sendSms = async (message: string, phone: string) => {
   }
 };
 
-
 export function isValidURL(url: string): boolean {
   try {
     // Attempt to create a URL object
@@ -119,7 +118,7 @@ export function isValidURL(url: string): boolean {
 }
 
 export const registry = (
-  registryBaseUrl:string,
+  registryBaseUrl: string,
   serviceName: string,
   serviceVersion: string,
   servicePort: number
