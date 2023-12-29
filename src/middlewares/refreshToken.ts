@@ -1,6 +1,6 @@
 import config from "config";
 import { NextFunction, Response } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
 import { UserRequest } from "../shared/types";
 import { User } from "../features/auth/data/models";
 
@@ -25,6 +25,12 @@ const refreshToken = async (
     req.user = user;
     next();
   } catch (err) {
+    if (err instanceof TokenExpiredError)
+      return res
+        .status(401)
+        .json({
+          detail: "Your session has expired, please sign in to continue",
+        });
     res.status(401).json({ detail: "Invalid refresh token or expired" });
   }
 };
