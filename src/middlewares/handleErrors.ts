@@ -9,15 +9,19 @@ export function handleErrors(
   next: NextFunction
 ) {
   if (error.status) {
-    return res.status(error.status).json({
-      errors: entries(error.errors).reduce((prev, [key, value]) => {
-        if (key === "_errors") return { ...prev, [key]: value };
-        return {
-          ...prev,
-          [key]: ((value as any)._errors as string[]).join(", "),
-        };
-      }, {}),
-    });
+    return res.status(error.status).json(
+      error.status === 400
+        ? {
+            errors: entries(error.errors).reduce((prev, [key, value]) => {
+              if (key === "_errors") return { ...prev, [key]: value };
+              return {
+                ...prev,
+                [key]: ((value as any)._errors as string[]).join(", "),
+              };
+            }, {}),
+          }
+        : error.errors
+    );
   }
   // For other types of errors, return a generic error response
   console.log("[*]Error handler middleware: ", error.message);
