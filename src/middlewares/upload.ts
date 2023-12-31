@@ -1,14 +1,23 @@
 import slugify from "slugify";
 import multer from "multer";
 import path from "path";
+import fs from "fs";
 import { MEDIA_ROOT, configuration } from "../utils";
 
-// const uploads = multer({ dest: "../media/uploads" });
+const ensureFolderExists = (folderPath: string) => {
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath, { recursive: true });
+  }
+};
 
 const fileUploader = ({ dest }: { dest: string }) => {
   const storage = multer.diskStorage({
-    destination: path.join(MEDIA_ROOT, dest), //create folder if dont exists
-    filename: function (req, file, cb) {
+    destination: (req, file, cb) => {
+      const destinationFolder = path.join(MEDIA_ROOT, dest);
+      ensureFolderExists(destinationFolder);
+      cb(null, destinationFolder);
+    },
+    filename: (req, file, cb) => {
       cb(
         null,
         slugify(configuration.name) +
@@ -18,7 +27,7 @@ const fileUploader = ({ dest }: { dest: string }) => {
           Date.now() +
           "-" +
           slugify(file.originalname, { lower: true, trim: true })
-      ); // filename
+      );
     },
   });
 
