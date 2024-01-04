@@ -5,8 +5,10 @@ import { UserSchema } from "../../presentation";
 import { isEmpty } from "lodash";
 
 const getUserProfileById = async (id: string | Types.ObjectId) => {
-  const userId = id instanceof String ? new Types.ObjectId(id) : id;
-  const user = await User.aggregate([
+  if (!Types.ObjectId.isValid(id))
+    throw { status: 404, errors: { detail: "User not found" } };
+  const userId = typeof id === "string" ? new Types.ObjectId(id) : id;
+  const users = await User.aggregate([
     {
       $match: {
         _id: userId,
@@ -22,7 +24,11 @@ const getUserProfileById = async (id: string | Types.ObjectId) => {
     },
     { $project: { password: 0, __v: 0, "person.__v": 0 } },
   ]);
-  return user[0];
+
+  const user = users[0];
+
+  if (!user) throw { status: 404, errors: { detail: "User not found" } };
+  return user;
 };
 
 const updateUserProfile = async (

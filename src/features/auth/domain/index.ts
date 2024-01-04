@@ -7,4 +7,4 @@ export {
   changePassword,
   resetPassword,
 } from "./controllers/authentication";
-export { profileView, profileUpdate } from "./controllers/profile";
+export { profileView, profileUpdate, userProfile } from "./controllers/profile";

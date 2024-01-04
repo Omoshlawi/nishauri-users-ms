@@ -8,6 +8,7 @@ import {
   requestVerificationCode,
   verifyAccount,
   changePassword,
+  userProfile,
 } from "./domain";
 import {
   authenticate,
@@ -22,6 +23,7 @@ const router = Router();
 router.post("/register", register);
 router.post("/login", login);
 router.get("/profile", authenticate as any, profileView as any);
+router.get("/user/:id", authenticate as any, userProfile);
 router.post(
   "/profile",
   [

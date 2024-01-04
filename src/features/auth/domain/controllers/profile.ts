@@ -1,10 +1,11 @@
-import { NextFunction, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { UserRequest } from "../../../../shared/types";
 import { userRepository } from "../../data/respositories";
 import { UserSchema } from "../../presentation";
 import { APIException } from "../../../../shared/exceprions";
 import { PROFILE_URL } from "../../../../utils";
 import { getUpdateFileAsync } from "../../../../utils/helpers";
+import { Types } from "mongoose";
 
 export const profileView = async (
   req: UserRequest,
@@ -34,6 +35,19 @@ export const profileUpdate = async (
       req.user._id,
       validation.data
     );
+    return res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const userProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = await userRepository.getUserProfileById(req.params.id);
     return res.json(user);
   } catch (error) {
     next(error);
