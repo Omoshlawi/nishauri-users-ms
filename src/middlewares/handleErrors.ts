@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { APIException } from "../shared/exceprions";
 import { entries } from "lodash";
+import logger from "../shared/logger";
 
 export function handleErrors(
   error: any,
@@ -23,8 +23,20 @@ export function handleErrors(
         : error.errors
     );
   }
+
+  if (error.errors) {
+    const status = 400;
+    const validationErrors: any = {};
+    // Mongo db validation
+    const _errors: any = {};
+    for (const field in error.errors) {
+      _errors[error.errors[field].path] = error.errors[field].message;
+    }
+    validationErrors.errors = _errors;
+    return res.status(status).json({ validationErrors });
+  }
   // For other types of errors, return a generic error response
-  console.log("[*]Error handler middleware: ", error.message);
+  logger.error("Error handler middleware: " + error.message);
 
   return res.status(500).json({ detail: "Internal Server Error" });
 }

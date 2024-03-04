@@ -9,6 +9,8 @@ import {
   verifyAccount,
   changePassword,
   userProfile,
+  oauth,
+  oauthCallback,
 } from "./domain";
 import {
   authenticate,
@@ -22,6 +24,8 @@ const router = Router();
 
 router.post("/register", register);
 router.post("/login", login);
+router.get("/google", oauth);
+router.get("/google/callback", oauthCallback);
 router.get("/profile", authenticate as any, profileView as any);
 router.get("/user/:id", authenticate as any, userProfile);
 router.post(

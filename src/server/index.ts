@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import morgan from "morgan";
 import { MEDIA_ROOT, configuration } from "../utils";
 import { default as authRoutes } from "../features/auth/route";
+import { default as authRoutes1 } from "../features/auth-1/routes";
+import { default as usersRoutes } from "../features/users/routes";
 import proxy from "express-http-proxy";
 import { handleErrors } from "../middlewares";
 import { Channel } from "amqplib";
@@ -39,10 +41,8 @@ export const configureExpressApp = async (
 
   //------------------- routes --------------------------------
   app.use("/auth", authRoutes);
-  app.use("/patients", proxy("http://localhost:5001"));
-  app.get("/", (req, res) => {
-    res.send({ data: "Hello, world!" });
-  });
+  app.use("/api/auth", authRoutes1);
+  app.use("/users", usersRoutes);
   //-------------------end routes-----------------------------
 
   //---------------- error handler -----------------------

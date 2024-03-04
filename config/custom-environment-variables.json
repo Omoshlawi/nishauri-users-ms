@@ -8,5 +8,11 @@
     "mapquest_key":"MAPQUEST_CONSUMER_KEY",
     "mapquest_secrete":"MAPQUEST_CONSUMER_SECRETE",
     "port": "PORT",
-    "message_broker_url": "MESSAGE_BROKER_URL"
+    
+    "message_broker_url": "MESSAGE_BROKER_URL",
+    "google_client_id": "GOOGLE_CLIENT_ID",
+    "google_client_secrete": "GOOGLE_CLIENT_SECRETE",
+    "github_client_id": "GITHUB_CLIENT_ID",
+    "github_client_secrete": "GITHUB_CLIENT_SECRETE",
+    "auth_secrete": "AUTH_SECRET"
 }
