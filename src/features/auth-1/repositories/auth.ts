@@ -25,7 +25,6 @@ import moment from "moment/moment";
 import { generateExpiryTime, generateOTP } from "../../../utils/helpers";
 
 class AuthRepository {
-
   selectFileds: Prisma.UserSelect = {
     id: true,
     username: true,
@@ -308,6 +307,7 @@ class AuthRepository {
     if (user === null)
       user = await UserModel.create({
         data: {
+          accountVerified: true,
           person: {
             create: {
               email,

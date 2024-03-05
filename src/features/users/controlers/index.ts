@@ -58,6 +58,8 @@ export const updateProfile = async (
   next: NextFunction
 ) => {
   try {
+    console.log(req.file);
+
     const validation = await UpdateUserSchema.safeParseAsync({
       ...req.body,
       image: await getUpdateFileAsync(

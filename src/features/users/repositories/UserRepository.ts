@@ -260,6 +260,7 @@ class UserRepository {
       select: this.selectFields,
       data: {
         username,
+        profileUpdated: true,
         person: {
           update: {
             firstName,
