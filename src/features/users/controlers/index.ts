@@ -4,6 +4,9 @@ import { UserRequest } from "../../../shared/types";
 import { UpdateUserSchema } from "../schema";
 import { APIException } from "../../../shared/exceprions";
 import { z } from "zod";
+import { getUpdateFileAsync } from "../../../utils/helpers";
+import { PROFILE_URL } from "../../../utils";
+import { User } from "@prisma/client";
 
 export const getUsers = async (
   req: Request,
@@ -32,7 +35,7 @@ export const getUser = async (
       throw { status: 404, errors: { detail: "User not found" } };
     }
     const users = await userRepo.findOneById(req.params.id);
-    return res.json({ results: users });
+    return res.json(users);
   } catch (error) {
     next(error);
   }
@@ -55,7 +58,14 @@ export const updateProfile = async (
   next: NextFunction
 ) => {
   try {
-    const validation = await UpdateUserSchema.safeParseAsync(req.body);
+    const validation = await UpdateUserSchema.safeParseAsync({
+      ...req.body,
+      image: await getUpdateFileAsync(
+        req as any,
+        PROFILE_URL,
+        (req.user as any).person.image
+      ),
+    });
     if (!validation.success)
       throw new APIException(400, validation.error.format());
     const user = await userRepo.updateById(

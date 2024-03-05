@@ -1,9 +1,15 @@
 import { tuple, z } from "zod";
-import { Login, OauthAuthSchema, Register } from "../schema";
+import {
+  AccountVerificationSchema,
+  ChangePasswordSchema,
+  Login,
+  OauthAuthSchema,
+  Register,
+} from "../schema";
 import bcrypt from "bcrypt";
-import { Prisma, User } from "@prisma/client";
+import { AccountVerification, Prisma, User } from "@prisma/client";
 import { userRepo } from "../../users/repositories";
-import { AccountModel } from "../models";
+import { AccountModel, AccountVerificationModel } from "../models";
 import {
   sign,
   verify,
@@ -15,8 +21,11 @@ import {
 import { configuration } from "../../../utils";
 import { TokenPayload } from "../../../shared/types";
 import { UserModel } from "../../users/models";
+import moment from "moment/moment";
+import { generateExpiryTime, generateOTP } from "../../../utils/helpers";
 
 class AuthRepository {
+
   selectFileds: Prisma.UserSelect = {
     id: true,
     username: true,
@@ -70,6 +79,61 @@ class AuthRepository {
     createdAt: true,
     updatedAt: true,
   };
+
+  async getOrCreateAccountVerification(
+    userId: string,
+    mode: "sms" | "watsapp" | "email"
+  ): Promise<AccountVerification> {
+    // Get verification
+    let verification = await AccountVerificationModel.findFirst({
+      where: { userId, verified: false, expires: moment().toDate() },
+    });
+    if (!verification) {
+      // Create account verification object that expires in 2 hrs
+      verification = await AccountVerificationModel.create({
+        data: {
+          userId,
+          extras: mode,
+          otp: generateOTP(5),
+          expires: generateExpiryTime(120).toDate(),
+        },
+      });
+    }
+    return verification;
+  }
+
+  async verifyUserAccount(
+    userId: string,
+    { mode, otp }: z.infer<typeof AccountVerificationSchema>
+  ) {
+    // TODO Can use mode against the extra field to make sure its same with what user has provided
+    const verification = await AccountVerificationModel.findFirst({
+      where: {
+        userId: userId,
+        verified: false,
+        expires: { gte: moment().toDate() },
+        otp: otp,
+        // extras: mode
+      },
+    });
+    // If no matching verification then throw validation exception
+    if (!verification)
+      throw {
+        errors: { otp: { _errors: ["Invalid or Expired code!"] } },
+        status: 400,
+      };
+    // Mark account as verified
+    const user = await UserModel.update({
+      where: { id: userId },
+      data: { accountVerified: true },
+    });
+    // Mark verification as verified
+    await AccountVerificationModel.update({
+      where: { id: verification.id },
+      data: { verified: true },
+    });
+    return user;
+  }
   async credentialsSignUp(data: z.infer<typeof Register>): Promise<User> {
     const { password, confirmPassword, email, phoneNumber, username } = data;
     const hash = await this.hashPassword(password);
@@ -263,6 +327,27 @@ class AuthRepository {
       },
     });
     return user!;
+  }
+
+  async changeUserPassword(
+    id: string,
+    {
+      confirmNewPassword,
+      currentPassword,
+      newPassword,
+    }: z.infer<typeof ChangePasswordSchema>
+  ) {
+    const user = await userRepo.findOneById(id);
+    if (!(await this.checkPassword(user, currentPassword)))
+      throw {
+        errors: { currentPassword: { _errors: ["Invalid password"] } },
+        status: 400,
+      };
+    // Update password
+    await UserModel.update({
+      where: { id },
+      data: { password: await this.hashPassword(newPassword) },
+    });
   }
 }
 export default AuthRepository;
