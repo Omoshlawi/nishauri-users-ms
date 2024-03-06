@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
-import { configureExpressApp, dbConnection } from "./server";
+import { configureExpressApp } from "./server";
 import { messageBroker } from "./amqp";
 import { configuration } from "./utils";
 import { registry } from "./utils/helpers";
@@ -10,9 +10,6 @@ import { toNumber } from "lodash";
 const startServer = async () => {
   const app = express();
   const httpServer = createServer(app);
-  //-------------- connect to database---------------------
-  await dbConnection();
-  //-------------- end database connecivity      ---------------------
   // -----------------Message broker--------------------------
   const channel = await messageBroker.createChannel();
   // -----------------End Message broker---------------------

@@ -3,7 +3,7 @@ import { Account, PatientProfile, Person, Prisma, User } from "@prisma/client";
 import { isEmpty } from "lodash";
 import { NotFoundException, ValidationException } from "../../../shared/types";
 import { UserModel } from "../models";
-import { AccountModel } from "../../auth-1/models";
+import { AccountModel } from "../../auth/models";
 
 /**
  * Common Interfacefor ineracting with datasource to manage user, authenticate and authorize

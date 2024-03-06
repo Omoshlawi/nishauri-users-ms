@@ -78,7 +78,7 @@ export const changePassword = async (
     const validation = await ChangePasswordSchema.safeParseAsync(req.body);
     if (!validation.success)
       throw new APIException(400, validation.error.format());
-    await authRepo.changeUserPassword((req.user as any).id, validation.data);
+    await authRepo.changeUserPassword((req as any).user.id, validation.data);
     return res.json({ detail: "Password changed successfully!" });
   } catch (error) {
     next(error);
@@ -105,7 +105,7 @@ export const verifyAccount = async (
     const validation = await AccountVerificationSchema.safeParseAsync(req.body);
     if (!validation.success)
       throw new APIException(400, validation.error.format());
-    await authRepo.verifyUserAccount((req.user as any).id, validation.data);
+    await authRepo.verifyUserAccount((req as any).user.id, validation.data);
 
     return res.json({ detail: "Verification successfull" });
   } catch (error) {
@@ -128,16 +128,16 @@ export const requestVerificationCode = async (
       : "sms";
 
     const { otp: code } = await authRepo.getOrCreateAccountVerification(
-      (req.user as any).id,
+      (req as any).user.id,
       mode
     );
     const messageTemplate: string = config.get("sms.OTP_SMS");
 
     const parsedMessage = parseMessage({ code }, messageTemplate);
-    sendSms(parsedMessage, (req.user as any).person!.phoneNumber);
+    sendSms(parsedMessage, (req as any).user.person!.phoneNumber);
     return res.json({
       detail: `OTP sent to ${mode} ${
-        (req.user as any).person!.phoneNumber
+        (req as any).user.person!.phoneNumber
       } successfully`,
     });
   } catch (error) {

@@ -6,7 +6,6 @@ import { APIException } from "../../../shared/exceprions";
 import { z } from "zod";
 import { getUpdateFileAsync } from "../../../utils/helpers";
 import { PROFILE_URL } from "../../../utils";
-import { User } from "@prisma/client";
 
 export const getUsers = async (
   req: Request,
@@ -65,7 +64,7 @@ export const updateProfile = async (
       image: await getUpdateFileAsync(
         req as any,
         PROFILE_URL,
-        (req.user as any).person.image
+        (req as any).user.person.image
       ),
     });
     if (!validation.success)

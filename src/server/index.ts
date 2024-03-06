@@ -1,26 +1,12 @@
 import cors from "cors";
 import express, { Application } from "express";
-import mongoose from "mongoose";
 import morgan from "morgan";
 import { MEDIA_ROOT, configuration } from "../utils";
-import { default as authRoutes } from "../features/auth/route";
-import { default as authRoutes1 } from "../features/auth-1/routes";
+import { default as authRoutes } from "../features/auth/routes";
 import { default as usersRoutes } from "../features/users/routes";
 import proxy from "express-http-proxy";
 import { handleErrors } from "../middlewares";
 import { Channel } from "amqplib";
-
-export const dbConnection = async () => {
-  try {
-    await mongoose.connect(configuration.db as string);
-    console.info(
-      `[+]${configuration.name}:${configuration.version} Connected to database Successfully`
-    );
-  } catch (error) {
-    console.error("[x]Could not connect to database" + error);
-    process.exit(1); // Exit the application on database connection error
-  }
-};
 
 export const configureExpressApp = async (
   app: Application,
@@ -40,8 +26,7 @@ export const configureExpressApp = async (
   // ------------------End middlewares------------------------
 
   //------------------- routes --------------------------------
-  app.use("/auth", authRoutes);
-  app.use("/api/auth", authRoutes1);
+  app.use("/api/auth", authRoutes);
   app.use("/users", usersRoutes);
   //-------------------end routes-----------------------------
 

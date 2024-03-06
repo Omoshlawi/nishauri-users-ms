@@ -1,7 +1,7 @@
 import config from "config";
 import { NextFunction, Request, Response } from "express";
 import { UserRequest } from "../shared/types";
-import { authRepo } from "../features/auth-1/repositories";
+import { authRepo } from "../features/auth/repositories";
 
 const authenticate = async (
   req: Request,
