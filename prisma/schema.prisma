@@ -9,13 +9,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DB_URL")
 }
 
 model Account {
-  id                String   @id @default(uuid()) @db.Uuid
-  userId            String   @db.Uuid
+  id                String   @id @default(uuid())
+  userId            String
   type              String
   provider          String
   providerAccountId String   @default(cuid())
@@ -27,7 +27,7 @@ model Account {
 }
 
 model User {
-  id                   String                @id @default(uuid()) @db.Uuid
+  id                   String                @id @default(uuid())
   username             String?               @unique
   accountVerified      Boolean               @default(false)
   password             String?
@@ -43,8 +43,8 @@ model User {
 }
 
 model Person {
-  id              String    @id @default(uuid()) @db.Uuid
-  userId          String    @unique @db.Uuid
+  id              String    @id @default(uuid())
+  userId          String    @unique
   user            User      @relation(fields: [userId], onDelete: Cascade, references: [id])
   firstName       String?
   lastName        String?
@@ -62,24 +62,51 @@ model Person {
 }
 
 model PatientProfile {
-  id             String   @id @default(uuid()) @db.Uuid
-  userId         String   @unique @db.Uuid
-  user           User     @relation(fields: [userId], onDelete: Cascade, references: [id])
+  id             String                         @id @default(uuid())
+  userId         String                         @unique
+  user           User                           @relation(fields: [userId], onDelete: Cascade, references: [id])
   bloodGroup     String?
   weight         String?
   height         String?
   educationLevel String?
   occupation     String?
-  allergies      String[] @default([])
-  chronics       String[] @default([])
-  disabilities   String[] @default([])
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  allergies      PatientProfileAllergy[]
+  chronics       PatientProfileChronicIllness[]
+  disabilities   PatientProfileDisability[]
+  createdAt      DateTime                       @default(now())
+  updatedAt      DateTime                       @updatedAt
+}
+
+model PatientProfileAllergy {
+  id               String         @id @default(uuid())
+  patientProfileId String
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  alergy           String
+
+  @@unique([alergy, patientProfileId])
+}
+
+model PatientProfileChronicIllness {
+  id               String         @id @default(uuid())
+  patientProfileId String
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  chronicIllness   String
+
+  @@unique([chronicIllness, patientProfileId])
+}
+
+model PatientProfileDisability {
+  id               String         @id @default(uuid())
+  patientProfileId String
+  patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
+  disability       String
+
+  @@unique([disability, patientProfileId])
 }
 
 model AccountVerification {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
+  id        String   @id @default(uuid())
+  userId    String
   user      User     @relation(fields: [userId], onDelete: Cascade, references: [id])
   otp       String
   expires   DateTime
