@@ -195,7 +195,13 @@ class UserRepository {
    */
   async updateById(
     id: string,
-    updates: Partial<User> & Partial<Person> & Partial<PatientProfile>
+    updates: Partial<User> &
+      Partial<Person> &
+      Partial<PatientProfile> & {
+        allergies?: string[];
+        disabilities?: string[];
+        chronics?: string[];
+      }
   ): Promise<User> {
     const currUser = await this.findOneById(id);
     const errors: any = {};
@@ -246,10 +252,10 @@ class UserRepository {
       phoneNumber,
       primaryLanguage,
       username,
-      // allergies,
+      allergies,
       bloodGroup,
-      // chronics,
-      // disabilities,
+      chronics,
+      disabilities,
       educationLevel,
       height,
       occupation,
@@ -291,16 +297,63 @@ class UserRepository {
               },
             },
             update: {
-              // allergies,
+              allergies: {
+                deleteMany: {
+                  allergy: { notIn: allergies },
+                },
+                createMany: {
+                  data: allergies?.map((allergy) => ({ allergy })) ?? [],
+                  skipDuplicates: true,
+                },
+              },
+              chronics: {
+                deleteMany: {
+                  chronicIllness: { notIn: chronics },
+                },
+                createMany: {
+                  data:
+                    chronics?.map((chronicIllness) => ({ chronicIllness })) ??
+                    [],
+                  skipDuplicates: true,
+                },
+              },
+              disabilities: {
+                deleteMany: {
+                  disability: { notIn: disabilities },
+                },
+                createMany: {
+                  data:
+                    disabilities?.map((disability) => ({ disability })) ?? [],
+                },
+              },
               bloodGroup,
-              // chronics,
-              // disabilities,
               educationLevel,
               height,
               occupation,
               weight,
             },
             create: {
+              allergies: {
+                createMany: {
+                  data: allergies?.map((allergy) => ({ allergy })) ?? [],
+                  skipDuplicates: true,
+                },
+              },
+              chronics: {
+                createMany: {
+                  data:
+                    chronics?.map((chronicIllness) => ({ chronicIllness })) ??
+                    [],
+                  skipDuplicates: true,
+                },
+              },
+              disabilities: {
+                createMany: {
+                  data:
+                    disabilities?.map((disability) => ({ disability })) ?? [],
+                  skipDuplicates: true,
+                },
+              },
               // allergies,
               bloodGroup,
               // chronics,

@@ -81,9 +81,9 @@ model PatientProfileAllergy {
   id               String         @id @default(uuid())
   patientProfileId String
   patientProfile   PatientProfile @relation(fields: [patientProfileId], references: [id], onDelete: Cascade)
-  alergy           String
+  allergy           String
 
-  @@unique([alergy, patientProfileId])
+  @@unique([allergy, patientProfileId])
 }
 
 model PatientProfileChronicIllness {
